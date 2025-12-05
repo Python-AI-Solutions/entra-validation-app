@@ -1,0 +1,20 @@
+[project]
+name = "entra-credentials-validator"
+version = "0.1.0"
+description = "Helper CLI + browser workflow for validating NIH Microsoft Entra registrations."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "python-dotenv>=1.0.1",
+    "Flask>=3.0.0",
+    "pytest>=9.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
