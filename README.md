@@ -2,16 +2,15 @@
 
 Small helper utility for exercising the NIH Microsoft Entra (OIDC) registration that powers the fmrif scheduler. It loads the same `.env` values used in the Flask app, enforces PKCE, and exposes:
 
-- `entra_test_cli.py report` – CLI workflow that walks through discovery, authorization, token, refresh, and userinfo calls while printing PASS/SKIP/FAIL results.
-- `entra_test_cli.py browser-helper` – a local SPA that satisfies Microsoft’s “cross-origin only” restriction for public/SPA registrations by redeeming the authorization code in the browser. Useful when Entra returns `AADSTS9002327`.
+- `entra-credentials-validator report` – CLI workflow that walks through discovery, authorization, token, refresh, and userinfo calls while printing PASS/SKIP/FAIL results.
+- `entra-credentials-validator browser-helper` – a local SPA that satisfies Microsoft’s “cross-origin only” restriction for public/SPA registrations by redeeming the authorization code in the browser. Useful when Entra returns `AADSTS9002327`.
 
 ## Setup
-1. Install [uv](https://github.com/astral-sh/uv) if you do not already have it.
-2. From this directory run:
+### Using pixi (recommended for local/dev)
+1. Install [pixi](https://pixi.sh) if you do not already have it.
+2. From this directory, create the environment:
    ```bash
-   uv venv
-   source .venv/bin/activate
-   uv pip install -e .
+   pixi install
    ```
 3. Copy the example environment file and fill in the NIH-provided values:
    ```bash
@@ -22,7 +21,7 @@ Small helper utility for exercising the NIH Microsoft Entra (OIDC) registration 
 ## Usage
 ### CLI flow
 ```bash
-python entra_test_cli.py report --public-client --open-browser
+pixi run report
 ```
 - Follow the prompts to launch the authorization URL, sign in with your NIH PIV/credentials, and paste the redirect URL back into the CLI.
 - If the app is configured as a confidential client, omit `--public-client` (or pass `--no-public-client`) and ensure the client secret is set in `.env`.
@@ -30,8 +29,11 @@ python entra_test_cli.py report --public-client --open-browser
 
 ### Browser helper
 ```bash
-python entra_test_cli.py browser-helper --public-client
-# visit the printed http://127.0.0.1:8765 URL
+pixi run browser-helper
+```
+- To automatically launch the helper UI in a browser (useful over X forwarding), add:
+```bash
+pixi run browser-helper-firefox
 ```
 - Click “Launch authorization URL,” complete the NIH login, copy the redirect URL (even if the page errors), and paste it into the helper.
 - The page immediately redeems the code in the browser, attempts a refresh token exchange, and calls the Microsoft Graph userinfo endpoint. A report panel mirrors the CLI’s output.
@@ -39,7 +41,17 @@ python entra_test_cli.py browser-helper --public-client
 
 ### Tests
 ```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/test_entra_test_cli.py
+pixi run test
 ```
+
+### Optional Playwright browser tests
+- The pixi environment includes `playwright` and `pytest-playwright`, but the browsers
+  themselves are not installed by default.
+- To prepare Playwright for E2E checks (e.g., using Chromium instead of Firefox), run:
+  ```bash
+  pixi run python -m playwright install
+  ```
+- A placeholder test lives in `tests/test_browser_helper_playwright.py`; you can replace
+  it with real Playwright tests that drive the browser-helper UI once browsers are installed.
 
 For troubleshooting notes and NIH-specific constraints, see `credential-testing.md`.

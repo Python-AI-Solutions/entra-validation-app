@@ -363,6 +363,699 @@ BROWSER_HELPER_HTML = textwrap.dedent(
     """
 )
 
+BROWSER_HELPER_HTML_V2 = textwrap.dedent(
+    """
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>Microsoft Entra Browser Helper</title>
+      <style>
+        body {
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          margin: 0;
+          padding: 1.5rem;
+          background: #f3f4f6;
+          color: #111827;
+        }
+
+        .app-shell {
+          max-width: 1120px;
+          margin: 0 auto;
+        }
+
+        .page-header {
+          margin-bottom: 1rem;
+        }
+
+        h1 {
+          margin: 0 0 0.25rem 0;
+          font-size: 1.6rem;
+        }
+
+        .lead {
+          margin: 0;
+          color: #4b5563;
+          font-size: 0.95rem;
+        }
+
+        .layout {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        @media (min-width: 900px) {
+          .layout {
+            flex-direction: row;
+            align-items: flex-start;
+          }
+        }
+
+        .main-column,
+        .side-column {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .main-column {
+          flex: 2 1 0;
+        }
+
+        .side-column {
+          flex: 1 1 0;
+        }
+
+        section {
+          background: #ffffff;
+          border-radius: 10px;
+          padding: 1rem;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+          border: 1px solid #e5e7eb;
+        }
+
+        section h2 {
+          margin-top: 0;
+          font-size: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        textarea,
+        input {
+          width: 100%;
+          box-sizing: border-box;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          padding: 0.5rem;
+          font-size: 0.9rem;
+          background: #f9fafb;
+        }
+
+        textarea {
+          min-height: 4rem;
+          resize: vertical;
+        }
+
+        button {
+          padding: 0.45rem 0.9rem;
+          border-radius: 999px;
+          border: 1px solid transparent;
+          font-size: 0.9rem;
+          cursor: pointer;
+          background: #e5e7eb;
+          color: #111827;
+        }
+
+        button.primary {
+          background: #2563eb;
+          color: #ffffff;
+          border-color: #2563eb;
+        }
+
+        button.secondary {
+          background: #ffffff;
+          color: #374151;
+          border-color: #d1d5db;
+        }
+
+        button:hover {
+          filter: brightness(0.97);
+        }
+
+        .status {
+          font-size: 0.85rem;
+          color: #6b7280;
+          margin-top: 0.25rem;
+          margin-bottom: 0.5rem;
+        }
+
+        #report-container {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .report-entry {
+          border-radius: 8px;
+          padding: 0.5rem 0.75rem;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+        }
+
+        .report-status {
+          font-weight: 600;
+          margin-bottom: 0.1rem;
+        }
+
+        .report-name {
+          font-size: 0.9rem;
+          margin-bottom: 0.1rem;
+          color: #111827;
+        }
+
+        .report-detail {
+          font-size: 0.8rem;
+          color: #4b5563;
+          white-space: pre-wrap;
+        }
+
+        .report-pass {
+          border-color: #bbf7d0;
+          background: #f0fdf4;
+        }
+
+        .report-pass .report-status {
+          color: #15803d;
+        }
+
+        .report-fail {
+          border-color: #fecaca;
+          background: #fef2f2;
+        }
+
+        .report-fail .report-status {
+          color: #b91c1c;
+        }
+
+        .report-skip {
+          border-color: #fed7aa;
+          background: #fffbeb;
+        }
+
+        .report-skip .report-status {
+          color: #92400e;
+        }
+
+        .config-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .config-grid label span {
+          display: block;
+          font-size: 0.8rem;
+          color: #6b7280;
+          margin-bottom: 0.15rem;
+        }
+
+        .config-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          font-size: 0.85rem;
+          color: #374151;
+        }
+
+        .config-checkbox input {
+          width: auto;
+        }
+
+        .config-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.75rem;
+        }
+
+        pre.output {
+          background: #111827;
+          color: #e5e7eb;
+          padding: 0.5rem;
+          border-radius: 6px;
+          overflow-x: auto;
+          font-size: 0.8rem;
+        }
+
+        label {
+          font-size: 0.9rem;
+          color: #111827;
+        }
+
+        code {
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          font-size: 0.85rem;
+          background: #e5e7eb;
+          padding: 0.1rem 0.25rem;
+          border-radius: 3px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="app-shell">
+        <header class="page-header">
+          <h1>Microsoft Entra Browser Helper</h1>
+          <p class="lead">
+            Redeem authorization codes directly in the browser so SPA (cross-origin only) registrations can be validated
+            without wiring tokens into your app first.
+          </p>
+        </header>
+
+        <div class="layout">
+          <div class="main-column">
+            <section id="auth-section">
+              <h2>Step 1: Authorization</h2>
+              <p class="status">
+                Launch the authorization URL, sign in with NIH credentials, then paste the redirect URL (or just the
+                <code>code</code> value) below.
+              </p>
+              <button id="start-auth" class="primary">Launch authorization URL</button>
+              <label for="code-input">Redirect URL or authorization code</label>
+              <textarea
+                id="code-input"
+                placeholder="https://fmrif-schedule-backend-dev.nimh.nih.gov/?code=...&state=..."
+              ></textarea>
+              <p class="status">You can also paste just the <code>code</code> value.</p>
+              <button id="extract-code" class="secondary">Extract code from URL</button>
+              <label for="verifier">PKCE code verifier (auto-filled after launching authorization)</label>
+              <input id="verifier" placeholder="Generated automatically" />
+            </section>
+
+            <section id="token-section">
+              <h2>Step 2: Token exchange</h2>
+              <p class="status">
+                Redeem the authorization code for tokens using the configured client. The helper automatically includes
+                PKCE parameters when required.
+              </p>
+              <button id="redeem-code" class="primary">Redeem authorization code</button>
+              <p class="status">Token endpoint response</p>
+              <pre id="token-output" class="output"></pre>
+            </section>
+
+            <section id="userinfo-section">
+              <h2>Step 3: Userinfo (optional)</h2>
+              <label for="access-token-input">Paste an access token</label>
+              <textarea
+                id="access-token-input"
+                placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9…"
+              ></textarea>
+              <button id="call-userinfo" class="secondary">Call Microsoft Graph userinfo</button>
+              <p class="status">Userinfo response</p>
+              <pre id="userinfo-output" class="output"></pre>
+            </section>
+          </div>
+
+          <div class="side-column">
+            <section id="config-section">
+              <h2>Configuration</h2>
+              <p class="status" id="config-status">Loading configuration from .env…</p>
+              <form id="config-form">
+                <div class="config-grid">
+                  <label>
+                    <span>Client ID</span>
+                    <input id="config-client-id" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Redirect URI</span>
+                    <input id="config-redirect-uri" type="url" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Scope</span>
+                    <input id="config-scope" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Tenant ID</span>
+                    <input id="config-tenant-id" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Discovery URL</span>
+                    <input id="config-discovery-url" type="url" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>State</span>
+                    <input id="config-state" autocomplete="off" />
+                  </label>
+                </div>
+                <label class="config-checkbox">
+                  <input type="checkbox" id="config-public-client" />
+                  <span>Public client (PKCE + no client secret)</span>
+                </label>
+                <div class="config-actions">
+                  <button type="button" id="config-apply" class="primary">Apply changes</button>
+                  <button type="button" id="config-reset" class="secondary">Reset to .env values</button>
+                </div>
+              </form>
+            </section>
+
+            <section id="report-section">
+              <h2>Report</h2>
+              <p class="status">Mirrors the CLI report output (PASS/SKIP/FAIL).</p>
+              <div id="report-container"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        let configData = null;
+        let originalConfigData = null;
+
+        const verifierInput = document.getElementById('verifier');
+        const codeInput = document.getElementById('code-input');
+        const tokenOutput = document.getElementById('token-output');
+        const userinfoOutput = document.getElementById('userinfo-output');
+        const reportContainer = document.getElementById('report-container');
+        const configStatus = document.getElementById('config-status');
+
+        const clientIdInput = document.getElementById('config-client-id');
+        const redirectUriInput = document.getElementById('config-redirect-uri');
+        const scopeInput = document.getElementById('config-scope');
+        const tenantIdInput = document.getElementById('config-tenant-id');
+        const discoveryInput = document.getElementById('config-discovery-url');
+        const stateInput = document.getElementById('config-state');
+        const publicClientCheckbox = document.getElementById('config-public-client');
+        const applyButton = document.getElementById('config-apply');
+        const resetButton = document.getElementById('config-reset');
+
+        const reportOrder = [
+          'Load configuration from env',
+          'Fetch OIDC discovery metadata',
+          'Client credentials grant',
+          'Authorization code capture',
+          'Exchange authorization code for tokens',
+          'Refresh token exchange',
+          'Userinfo endpoint call'
+        ];
+        const reportData = new Map();
+
+        function renderReport() {
+          reportContainer.innerHTML = '';
+          reportOrder.forEach((step) => {
+            const entry = reportData.get(step);
+            const status = entry ? entry.status : 'PENDING';
+            const detail = entry ? entry.detail : '';
+            const normalized = status.toLowerCase();
+            const div = document.createElement('div');
+            div.className = 'report-entry report-' + normalized;
+            div.innerHTML = `<div class="report-status">${status}</div><div class="report-name">${step}</div><div class="report-detail">${detail || ''}</div>`;
+            reportContainer.appendChild(div);
+          });
+        }
+
+        function updateReport(name, status, detail) {
+          reportData.set(name, { status, detail });
+          renderReport();
+        }
+
+        renderReport();
+
+        function base64UrlEncode(arrayBuffer) {
+          const bytes = new Uint8Array(arrayBuffer);
+          let binary = '';
+          for (let i = 0; i < bytes.byteLength; i += 1) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return btoa(binary).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+/g, '');
+        }
+
+        function generateVerifier(length = 64) {
+          const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+          const randomValues = new Uint8Array(length);
+          crypto.getRandomValues(randomValues);
+          return Array.from(randomValues, (value) => charset[value % charset.length]).join('');
+        }
+
+        async function pkceChallenge(verifier) {
+          const data = new TextEncoder().encode(verifier);
+          const digest = await crypto.subtle.digest('SHA-256', data);
+          return base64UrlEncode(digest);
+        }
+
+        function logStatus(element, message) {
+          if (!element) return;
+          element.textContent = message;
+        }
+
+        function extractCode(value) {
+          if (!value) return '';
+          const trimmed = value.trim();
+          if (trimmed.startsWith('http')) {
+            try {
+              const url = new URL(trimmed);
+              const code = url.searchParams.get('code');
+              if (code) {
+                return code;
+              }
+            } catch (err) {
+              console.warn('Unable to parse URL', err);
+            }
+          }
+          return trimmed;
+        }
+
+        function populateConfigForm(data) {
+          if (!data) return;
+          clientIdInput.value = data.client_id || '';
+          redirectUriInput.value = data.redirect_uri || '';
+          scopeInput.value = data.scope || '';
+          tenantIdInput.value = data.tenant_id || '';
+          discoveryInput.value = data.discovery_url || '';
+          stateInput.value = data.state || 'none';
+          publicClientCheckbox.checked = !!data.public_client;
+        }
+
+        function readConfigFromForm(current) {
+          const base = Object.assign({}, current || {});
+          base.client_id = clientIdInput.value.trim();
+          base.redirect_uri = redirectUriInput.value.trim();
+          base.scope = scopeInput.value.trim();
+          base.tenant_id = tenantIdInput.value.trim();
+          base.discovery_url = discoveryInput.value.trim();
+          base.state = stateInput.value.trim() || 'none';
+          base.public_client = publicClientCheckbox.checked;
+          return base;
+        }
+
+        async function fetchDiscoveryMetadata(url) {
+          if (!url) {
+            updateReport('Fetch OIDC discovery metadata', 'SKIP', 'Discovery URL not provided.');
+            return;
+          }
+          try {
+            const resp = await fetch(url);
+            const meta = await resp.json();
+            updateReport('Fetch OIDC discovery metadata', 'PASS', `Issuer: ${meta.issuer}`);
+          } catch (err) {
+            updateReport('Fetch OIDC discovery metadata', 'FAIL', 'Failed to load discovery metadata: ' + err);
+          }
+        }
+
+        async function startAuthorization() {
+          if (!configData) return;
+          const verifier = generateVerifier();
+          sessionStorage.setItem('pkce_verifier', verifier);
+          verifierInput.value = verifier;
+          const challenge = await pkceChallenge(verifier);
+          const params = new URLSearchParams({
+            client_id: configData.client_id,
+            response_type: 'code',
+            response_mode: 'query',
+            redirect_uri: configData.redirect_uri,
+            scope: configData.scope,
+            state: configData.state,
+            code_challenge: challenge,
+            code_challenge_method: 'S256',
+          });
+          const authUrl = configData.authorization_endpoint + '?' + params.toString();
+          window.open(authUrl, '_blank');
+          logStatus(tokenOutput, 'Authorization launched. Paste the redirect URL after login.');
+        }
+
+        async function redeemCode() {
+          if (!configData) return;
+          const codeValue = extractCode(codeInput.value);
+          if (!codeValue) {
+            alert('Please provide a redirect URL or authorization code.');
+            updateReport('Authorization code capture', 'FAIL', 'No redirect URL or code provided.');
+            return;
+          }
+          updateReport('Authorization code capture', 'PASS', 'Authorization code captured from input.');
+          const verifier = verifierInput.value.trim() || sessionStorage.getItem('pkce_verifier');
+          if (!verifier) {
+            alert('Missing PKCE code verifier. Launch the authorization URL again.');
+            return;
+          }
+          const params = new URLSearchParams({
+            client_id: configData.client_id,
+            grant_type: 'authorization_code',
+            code: codeValue,
+            redirect_uri: configData.redirect_uri,
+            scope: configData.scope,
+            code_verifier: verifier,
+          });
+          if (!configData.public_client && configData.client_secret) {
+            params.append('client_secret', configData.client_secret);
+          }
+          logStatus(tokenOutput, 'Submitting authorization code to the token endpoint…');
+          const response = await fetch(configData.token_endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          });
+          const text = await response.text();
+          tokenOutput.textContent = text;
+          if (response.ok) {
+            updateReport('Exchange authorization code for tokens', 'PASS', 'Token endpoint returned an access token.');
+            try {
+              const parsed = JSON.parse(text);
+              if (parsed.access_token) {
+                document.getElementById('access-token-input').value = parsed.access_token;
+              }
+              await refreshStep(parsed);
+            } catch (err) {
+              updateReport('Refresh token exchange', 'SKIP', 'Token response was not JSON; refresh skipped.');
+            }
+          } else {
+            updateReport('Exchange authorization code for tokens', 'FAIL', text);
+            updateReport('Refresh token exchange', 'SKIP', 'Token exchange failed; refresh not attempted.');
+          }
+        }
+
+        async function refreshStep(parsed) {
+          const refreshToken = parsed.refresh_token;
+          if (!refreshToken) {
+            updateReport('Refresh token exchange', 'SKIP', 'No refresh token issued (missing offline_access scope?).');
+            return;
+          }
+          const params = new URLSearchParams({
+            client_id: configData.client_id,
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+            scope: configData.scope,
+          });
+          if (!configData.public_client && configData.client_secret) {
+            params.append('client_secret', configData.client_secret);
+          }
+          const response = await fetch(configData.token_endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          });
+          const text = await response.text();
+          if (response.ok) {
+            updateReport('Refresh token exchange', 'PASS', 'Refresh token successfully exchanged.');
+          } else {
+            updateReport('Refresh token exchange', 'FAIL', text);
+          }
+        }
+
+        async function callUserinfo() {
+          const token = document.getElementById('access-token-input').value.trim();
+          if (!token) {
+            alert('Provide an access token first.');
+            return;
+          }
+          logStatus(userinfoOutput, 'Calling userinfo…');
+          const response = await fetch(configData.userinfo_endpoint, {
+            headers: { Authorization: 'Bearer ' + token },
+          });
+          const text = await response.text();
+          userinfoOutput.textContent = text;
+          if (response.ok) {
+            updateReport('Userinfo endpoint call', 'PASS', 'Graph userinfo returned claims.');
+          } else {
+            updateReport('Userinfo endpoint call', 'FAIL', text);
+          }
+        }
+
+        document.getElementById('start-auth').addEventListener('click', startAuthorization);
+        document.getElementById('redeem-code').addEventListener('click', redeemCode);
+        document.getElementById('extract-code').addEventListener('click', () => {
+          const value = extractCode(codeInput.value);
+          if (value && value !== codeInput.value.trim()) {
+            codeInput.value = value;
+          }
+        });
+        document.getElementById('call-userinfo').addEventListener('click', callUserinfo);
+
+        if (applyButton) {
+          applyButton.addEventListener('click', () => {
+            if (!configData) return;
+            configData = readConfigFromForm(configData);
+            if (configStatus) {
+              configStatus.textContent =
+                'Configuration updated for this browser session (env file unchanged).';
+            }
+            updateReport(
+              'Load configuration from env',
+              'PASS',
+              'Configuration updated in the helper UI; original .env values remain unchanged.'
+            );
+            fetchDiscoveryMetadata(configData.discovery_url);
+          });
+        }
+
+        if (resetButton) {
+          resetButton.addEventListener('click', () => {
+            if (!originalConfigData) return;
+            configData = Object.assign({}, originalConfigData);
+            populateConfigForm(configData);
+            if (configStatus) {
+              configStatus.textContent = 'Reset to values loaded from .env.';
+            }
+            updateReport(
+              'Load configuration from env',
+              'PASS',
+              'Configuration reset to .env defaults.'
+            );
+            fetchDiscoveryMetadata(configData.discovery_url);
+          });
+        }
+
+        fetch('/config')
+          .then((resp) => resp.json())
+          .then((data) => {
+            originalConfigData = Object.assign({}, data);
+            configData = Object.assign({}, data);
+            populateConfigForm(configData);
+            if (configStatus) {
+              configStatus.textContent =
+                'Loaded from .env; adjust values below to experiment with alternate settings.';
+            }
+            updateReport(
+              'Load configuration from env',
+              'PASS',
+              `Client ID loaded (${data.client_id.slice(0, 4)}…); redirect URI ${data.redirect_uri}; client secret ${
+                data.public_client ? 'not required' : 'available'
+              }.`
+            );
+            if (data.public_client) {
+              updateReport(
+                'Client credentials grant',
+                'SKIP',
+                'Public client registrations cannot request app-only tokens.'
+              );
+            } else {
+              updateReport(
+                'Client credentials grant',
+                'SKIP',
+                'Define a scope to test client_credentials from the CLI.'
+              );
+            }
+            if (sessionStorage.getItem('pkce_verifier')) {
+              verifierInput.value = sessionStorage.getItem('pkce_verifier');
+            }
+            fetchDiscoveryMetadata(data.discovery_url);
+          })
+          .catch((err) => {
+            if (configStatus) {
+              configStatus.textContent = 'Failed to load config: ' + err;
+            }
+            updateReport(
+              'Load configuration from env',
+              'FAIL',
+              'Failed to load config: ' + err
+            );
+          });
+      </script>
+    </body>
+    </html>
+    """
+)
+
 
 @dataclass
 class HttpResponse:
@@ -991,16 +1684,17 @@ def handle_browser_helper(args: argparse.Namespace) -> None:
 
     @app.get("/")
     def index() -> str:
-        return BROWSER_HELPER_HTML
+        return BROWSER_HELPER_HTML_V2
 
     @app.get("/config")
     def config() -> Any:
         return jsonify(config_payload)
 
+    helper_url = f"http://{args.host}:{args.port}"
     print(
         textwrap.dedent(
             f"""
-            Browser helper running at http://{args.host}:{args.port}
+            Browser helper running at {helper_url}
 
             1. Open the URL above in a browser.
             2. Click "Launch authorization URL" and complete the NIH login.
@@ -1009,6 +1703,15 @@ def handle_browser_helper(args: argparse.Namespace) -> None:
             """
         ).strip()
     )
+    if getattr(args, "open_browser", False):
+        browser_choice = getattr(args, "browser", "default")
+        try:
+            if browser_choice == "firefox":
+                webbrowser.get("firefox").open(helper_url)
+            else:
+                webbrowser.open(helper_url)
+        except webbrowser.Error as exc:  # pragma: no cover - best-effort helper
+            print(f"Warning: failed to launch browser ({browser_choice}): {exc}", file=sys.stderr)
     app.run(host=args.host, port=args.port, use_reloader=False)
 
 
@@ -1299,6 +2002,20 @@ def build_parser(defaults: EntraEnvDefaults, env_file: str) -> argparse.Argument
         "--discovery-url",
         default=defaults.discovery_url,
         help="OIDC discovery URL (default: derived from the tenant).",
+    )
+    browser.add_argument(
+        "--open-browser",
+        action="store_true",
+        help="Open the helper URL in a browser after starting the server.",
+    )
+    browser.add_argument(
+        "--browser",
+        choices=("default", "firefox"),
+        default="default",
+        help=(
+            "When used with --open-browser, choose which browser to launch. "
+            "Use 'firefox' when running over X forwarding."
+        ),
     )
     browser.add_argument(
         "--public-client",
