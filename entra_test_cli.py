@@ -19,6 +19,7 @@ import secrets
 import json
 import sys
 import textwrap
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List
@@ -1708,6 +1709,27 @@ def handle_browser_helper(args: argparse.Namespace) -> None:
         try:
             if browser_choice == "firefox":
                 webbrowser.get("firefox").open(helper_url)
+            elif browser_choice == "chromium":
+                try:
+                    from playwright.sync_api import sync_playwright  # type: ignore[import]
+                except Exception as exc:  # pragma: no cover - environment specific
+                    print(
+                        "Warning: failed to import Playwright for Chromium launch. "
+                        "Install it in this environment and run "
+                        "`python -m playwright install`.\n"
+                        f"Details: {exc}",
+                        file=sys.stderr,
+                    )
+                else:
+                    def _open_with_playwright() -> None:
+                        with sync_playwright() as p:
+                            browser = p.chromium.launch(headless=False)
+                            page = browser.new_page()
+                            page.goto(helper_url)
+                            # Keep the window open for interactive use.
+                            page.wait_for_timeout(24 * 60 * 60 * 1000)
+
+                    threading.Thread(target=_open_with_playwright, daemon=True).start()
             else:
                 webbrowser.open(helper_url)
         except webbrowser.Error as exc:  # pragma: no cover - best-effort helper
@@ -2010,11 +2032,12 @@ def build_parser(defaults: EntraEnvDefaults, env_file: str) -> argparse.Argument
     )
     browser.add_argument(
         "--browser",
-        choices=("default", "firefox"),
+        choices=("default", "firefox", "chromium"),
         default="default",
         help=(
             "When used with --open-browser, choose which browser to launch. "
-            "Use 'firefox' when running over X forwarding."
+            "Use 'firefox' to target a Firefox installation, or 'chromium' "
+            "to launch a Playwright-managed Chromium window from this environment."
         ),
     )
     browser.add_argument(

@@ -10,6 +10,7 @@ test = "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/test_entra_test_cli.py"
 report = "python entra_test_cli.py report --public-client --open-browser"
 browser-helper = "python entra_test_cli.py browser-helper --public-client"
 browser-helper-firefox = "python entra_test_cli.py browser-helper --public-client --open-browser --browser firefox"
+browser-helper-chromium = "python entra_test_cli.py browser-helper --public-client --open-browser --browser chromium"
 
 [dependencies]
 python = "3.12.*"

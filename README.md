@@ -35,6 +35,10 @@ pixi run browser-helper
 ```bash
 pixi run browser-helper-firefox
 ```
+- Or, to launch a Playwright-managed Chromium window from the pixi environment:
+```bash
+pixi run browser-helper-chromium
+```
 - Click “Launch authorization URL,” complete the NIH login, copy the redirect URL (even if the page errors), and paste it into the helper.
 - The page immediately redeems the code in the browser, attempts a refresh token exchange, and calls the Microsoft Graph userinfo endpoint. A report panel mirrors the CLI’s output.
 - The helper shares the same `.env` configuration and PKCE verifier values, so you can copy/paste tokens or codes between the browser and CLI workflows if needed.
@@ -47,11 +51,14 @@ pixi run test
 ### Optional Playwright browser tests
 - The pixi environment includes `playwright` and `pytest-playwright`, but the browsers
   themselves are not installed by default.
-- To prepare Playwright for E2E checks (e.g., using Chromium instead of Firefox), run:
+- To prepare Playwright for E2E checks or Chromium-based interactive sessions, run:
   ```bash
   pixi run python -m playwright install
   ```
-- A placeholder test lives in `tests/test_browser_helper_playwright.py`; you can replace
-  it with real Playwright tests that drive the browser-helper UI once browsers are installed.
+- A Playwright-based test lives in `tests/test_browser_helper_playwright.py`. It is
+  disabled by default; enable it with:
+  ```bash
+  ENTRA_E2E_PLAYWRIGHT=1 pixi run python -m pytest tests/test_browser_helper_playwright.py
+  ```
 
 For troubleshooting notes and NIH-specific constraints, see `credential-testing.md`.
