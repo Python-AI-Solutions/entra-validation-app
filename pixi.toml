@@ -1,0 +1,22 @@
+[workspace]
+authors = ["leej3 <johnleenimh@gmail.com>"]
+channels = ["conda-forge"]
+name = "entra-credentials-validator"
+platforms = ["osx-arm64", "osx-64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+test = "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/test_entra_test_cli.py"
+report = "python entra_test_cli.py report --public-client --open-browser"
+browser-helper = "python entra_test_cli.py browser-helper --public-client"
+browser-helper-firefox = "python entra_test_cli.py browser-helper --public-client --open-browser --browser firefox"
+browser-helper-chromium = "python entra_test_cli.py browser-helper --public-client --open-browser --browser chromium"
+
+[dependencies]
+python = "3.12.*"
+flask = ">=3.1.2,<4"
+python-dotenv = ">=1.2.1,<2"
+pytest = ">=8.0.0,<9"
+firefox = ">=145.0.2,<146"
+playwright = ">=1.57.0,<2"
+pytest-playwright = ">=0.7.2,<0.8"

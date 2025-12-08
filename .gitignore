@@ -1,0 +1,9 @@
+*.egg-info
+__pycache__
+.env
+.venv
+uv.lock
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+pixi.lock
