@@ -8,13 +8,10 @@ version = "0.1.0"
 [tasks]
 test = "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests/test_entra_test_cli.py"
 report = "python entra_test_cli.py report --public-client --open-browser"
-browser-helper = "python entra_test_cli.py browser-helper --public-client"
-browser-helper-firefox = "python entra_test_cli.py browser-helper --public-client --open-browser --browser firefox"
-browser-helper-chromium = "python entra_test_cli.py browser-helper --public-client --open-browser --browser chromium"
+serve = "python -m http.server 8000 --directory public"
 
 [dependencies]
 python = "3.12.*"
-flask = ">=3.1.2,<4"
 python-dotenv = ">=1.2.1,<2"
 pytest = ">=8.0.0,<9"
 firefox = ">=145.0.2,<146"
