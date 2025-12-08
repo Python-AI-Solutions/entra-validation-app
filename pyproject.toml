@@ -1,7 +1,7 @@
 [project]
 name = "entra-credentials-validator"
 version = "0.1.0"
-description = "Helper CLI + browser workflow for validating NIH Microsoft Entra registrations."
+description = "OAuth 2.0 / OIDC validation tool for Microsoft Entra app registrations with PKCE and SPA support."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """Helper CLI for exercising Microsoft Entra OIDC endpoints.
 
-This tool mirrors the steps in
-``docs/[DRAFT] NIH-CIT-Entra Application Onboarding Guide (OIDC) - External[2].docx``
-while automatically loading the NIH-provided client credentials from ``.env``.
-It enforces the PKCE requirements that Microsoft places on these app
-registrations and exposes a ``report`` subcommand that walks through discovery,
-authorization, token, refresh, and userinfo calls to confirm everything still
-works end-to-end. Both public-client (PKCE + no client secret) and confidential
-client scenarios are supported.
+This tool walks through the OAuth 2.0 Authorization Code flow with PKCE,
+automatically loading client credentials from ``.env``.
+It enforces PKCE requirements and exposes a ``report`` subcommand that walks
+through discovery, authorization, token, refresh, and userinfo calls to confirm
+everything works end-to-end. Both public-client (PKCE + no client secret) and
+confidential client scenarios are supported. Works with any Microsoft Entra tenant.
 """
 from __future__ import annotations
 
@@ -34,7 +32,7 @@ from flask import Flask, jsonify
 DEFAULT_TENANT_ID = "14b77578-9773-42d5-8507-251ca2dc2b06"
 DEFAULT_SCOPE = "email openid profile offline_access"
 DEFAULT_ENV_FILE = ".env"
-GUIDE_DOC_PATH = "../docs/[DRAFT] NIH-CIT-Entra Application Onboarding Guide (OIDC) - External[2].docx"
+GUIDE_DOC_PATH = "../docs/entra-guide.docx"
 AUTH_ENDPOINT = (
     "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize"
 )
@@ -68,7 +66,7 @@ BROWSER_HELPER_HTML = textwrap.dedent(
     <body>
       <h1>Microsoft Entra Browser Helper</h1>
       <section>
-        <p>This helper redeems authorization codes directly in the browser so SPA (cross-origin only) app registrations can be validated. Launch the authorization URL, authenticate with NIH credentials, copy the redirect URL (or just the <code>code</code> value), and paste it below.</p>
+        <p>This helper redeems authorization codes directly in the browser so SPA (cross-origin only) app registrations can be validated. Launch the authorization URL, authenticate with your registered credentials, copy the redirect URL (or just the <code>code</code> value), and paste it below.</p>
         <p class="status">Configuration</p>
         <pre id="config-view">Loading configuration…</pre>
       </section>
@@ -78,7 +76,7 @@ BROWSER_HELPER_HTML = textwrap.dedent(
         <button id="start-auth">Launch authorization URL</button>
         <p class="status">After signing in, copy the entire redirect URL (even if the page fails) and paste it here.</p>
         <label for="code-input">Redirect URL or authorization code</label>
-        <textarea id="code-input" placeholder="https://fmrif-schedule-backend-dev.nimh.nih.gov/?code=...&state=..."></textarea>
+        <textarea id="code-input" placeholder="https://your-app.example.com/callback?code=...&state=..."></textarea>
         <button id="extract-code">Extract code from URL</button>
         <label for="verifier">PKCE code verifier (auto-filled after launching authorization)</label>
         <input id="verifier" placeholder="Generated automatically" />
@@ -620,14 +618,14 @@ BROWSER_HELPER_HTML_V2 = textwrap.dedent(
             <section id="auth-section">
               <h2>Step 1: Authorization</h2>
               <p class="status">
-                Launch the authorization URL, sign in with NIH credentials, then paste the redirect URL (or just the
+                Launch the authorization URL, sign in with your registered credentials, then paste the redirect URL (or just the
                 <code>code</code> value) below.
               </p>
               <button id="start-auth" class="primary">Launch authorization URL</button>
               <label for="code-input">Redirect URL or authorization code</label>
               <textarea
                 id="code-input"
-                placeholder="https://fmrif-schedule-backend-dev.nimh.nih.gov/?code=...&state=..."
+                placeholder="https://your-app.example.com/callback?code=...&state=..."
               ></textarea>
               <p class="status">You can also paste just the <code>code</code> value.</p>
               <button id="extract-code" class="secondary">Extract code from URL</button>
@@ -1524,7 +1522,7 @@ def handle_report(args: argparse.Namespace) -> None:
         context["authorization_url"] = url
         message = [
             "Open the authorization URL above in a browser.",
-            "Complete the NIH login and paste the resulting redirect URL or code.",
+            "Complete the login and paste the resulting redirect URL or code.",
         ]
         print("\n".join(message))
         if args.open_browser:
@@ -1698,7 +1696,7 @@ def handle_browser_helper(args: argparse.Namespace) -> None:
             Browser helper running at {helper_url}
 
             1. Open the URL above in a browser.
-            2. Click "Launch authorization URL" and complete the NIH login.
+            2. Click "Launch authorization URL" and complete the login with your credentials.
             3. Paste the redirect URL (or just the code) back into the helper page and use it to
                redeem tokens via the browser, which satisfies Microsoft Entra's SPA restrictions.
             """
@@ -1764,7 +1762,7 @@ def build_parser(defaults: EntraEnvDefaults, env_file: str) -> argparse.Argument
         default=defaults.tenant_id,
         help=(
             "Entra tenant ID. Defaults to the tenant extracted from the discovery URL in "
-            "your env file or the NIH-provided tenant when unavailable."
+            "your env file or a default tenant ID when unavailable."
         ),
     )
     parser.add_argument(

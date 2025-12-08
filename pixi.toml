@@ -2,7 +2,7 @@
 authors = ["leej3 <johnleenimh@gmail.com>"]
 channels = ["conda-forge"]
 name = "entra-credentials-validator"
-platforms = ["osx-arm64", "linux-64"]
+platforms = ["osx-arm64", "osx-64", "linux-64"]
 version = "0.1.0"
 
 [tasks]

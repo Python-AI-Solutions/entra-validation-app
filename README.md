@@ -1,64 +1,81 @@
 # Entra Credentials Validator
 
-Small helper utility for exercising the NIH Microsoft Entra (OIDC) registration that powers the fmrif scheduler. It loads the same `.env` values used in the Flask app, enforces PKCE, and exposes:
+Test OAuth 2.0 / OIDC flows with Microsoft Entra. Implements PKCE security and provides two workflows:
 
-- `entra-credentials-validator report` – CLI workflow that walks through discovery, authorization, token, refresh, and userinfo calls while printing PASS/SKIP/FAIL results.
-- `entra-credentials-validator browser-helper` – a local SPA that satisfies Microsoft’s “cross-origin only” restriction for public/SPA registrations by redeeming the authorization code in the browser. Useful when Entra returns `AADSTS9002327`.
+- **CLI** (`pixi run report`) – Interactive prompts with PASS/SKIP/FAIL results
+- **Browser Helper** (`pixi run browser-helper`) – Local SPA that redeems auth codes in the browser (solves `AADSTS9002327` error)
 
-## Setup
-### Using pixi (recommended for local/dev)
-1. Install [pixi](https://pixi.sh) if you do not already have it.
-2. From this directory, create the environment:
-   ```bash
-   pixi install
-   ```
-3. Copy the example environment file and fill in the NIH-provided values:
-   ```bash
-   cp .env.example .env
-   # edit client_id, redirect_uri, discovery_url, and (optional) client_secret
-   ```
+## Quick Start
 
-## Usage
-### CLI flow
+```bash
+# 1. Install pixi (if needed): https://pixi.sh
+pixi install
+
+# 2. Configure
+cp .env.example .env
+# Edit .env with: client_id, redirect_uri, discovery_url, client_secret (optional)
+
+# 3. Run
+pixi run browser-helper  # Recommended: Web UI at localhost:5000
+# OR
+pixi run report         # CLI with interactive prompts
+```
+
+## Workflows
+
+**CLI:**
 ```bash
 pixi run report
-```
-- Follow the prompts to launch the authorization URL, sign in with your NIH PIV/credentials, and paste the redirect URL back into the CLI.
-- If the app is configured as a confidential client, omit `--public-client` (or pass `--no-public-client`) and ensure the client secret is set in `.env`.
-- Every step prints PASS/SKIP/FAIL; failures suggest whether you should switch to the browser helper.
-
-### Browser helper
-```bash
-pixi run browser-helper
-```
-- To automatically launch the helper UI in a browser (useful over X forwarding), add:
-```bash
-pixi run browser-helper-firefox
-```
-- Or, to launch a Playwright-managed Chromium window from the pixi environment:
-```bash
-pixi run browser-helper-chromium
-```
-- Click “Launch authorization URL,” complete the NIH login, copy the redirect URL (even if the page errors), and paste it into the helper.
-- The page immediately redeems the code in the browser, attempts a refresh token exchange, and calls the Microsoft Graph userinfo endpoint. A report panel mirrors the CLI’s output.
-- The helper shares the same `.env` configuration and PKCE verifier values, so you can copy/paste tokens or codes between the browser and CLI workflows if needed.
-
-### Tests
-```bash
-pixi run test
+# Follow prompts: open auth URL, login, paste redirect URL with code
 ```
 
-### Optional Playwright browser tests
-- The pixi environment includes `playwright` and `pytest-playwright`, but the browsers
-  themselves are not installed by default.
-- To prepare Playwright for E2E checks or Chromium-based interactive sessions, run:
-  ```bash
-  pixi run python -m playwright install
-  ```
-- A Playwright-based test lives in `tests/test_browser_helper_playwright.py`. It is
-  disabled by default; enable it with:
-  ```bash
-  ENTRA_E2E_PLAYWRIGHT=1 pixi run python -m pytest tests/test_browser_helper_playwright.py
-  ```
+**Browser Helper:**
+```bash
+pixi run browser-helper          # Opens browser automatically
+pixi run browser-helper-firefox  # With Firefox
+pixi run browser-helper-chromium # With Chromium
+# Fill form, click "Start OAuth Flow", login, view tokens
+```
 
-For troubleshooting notes and NIH-specific constraints, see `credential-testing.md`.
+**Tests:**
+```bash
+pixi run test  # Unit tests
+
+# E2E tests (requires credentials)
+python -m playwright install
+ENTRA_E2E_PLAYWRIGHT=1 python -m pytest tests/test_browser_helper_playwright.py
+```
+
+## Configuration
+
+**Public Client (SPA/Mobile):**
+```bash
+client_id="..."
+client_secret=""  # Leave empty
+redirect_uri="..."
+discovery_url="https://login.microsoftonline.com/{tenant}/v2.0/.well-known/openid-configuration"
+```
+
+**Confidential Client (Backend):**
+```bash
+client_id="..."
+client_secret="your-secret"
+redirect_uri="..."
+discovery_url="..."
+```
+
+## Documentation
+
+- **[docs/USAGE.md](docs/USAGE.md)** – Setup guides for different Entra configs (Generic, B2C, Custom)
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** – Technical design and OAuth flow details
+- **[docs/TESTING.md](docs/TESTING.md)** – Testing guide (unit, E2E, manual)
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** – Development setup and contribution guidelines
+- **[docs/credential-testing.md](docs/credential-testing.md)** – Troubleshooting and enterprise constraints
+
+## Common Issues
+
+| Error | Solution |
+|-------|----------|
+| `AADSTS9002327` | Use `pixi run browser-helper` |
+| `AADSTS700016` | Check client_id and tenant match |
+| `AADSTS650052` | Verify redirect_uri matches registration exactly |
