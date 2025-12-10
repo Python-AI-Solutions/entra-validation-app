@@ -3,7 +3,9 @@
 Test OAuth 2.0 / OIDC flows with Microsoft Entra. Implements PKCE security and provides two workflows:
 
 - **CLI** (`pixi run report`) – Interactive prompts with PASS/SKIP/FAIL results
-- **Browser Helper** (`pixi run browser-helper`) – Local SPA that redeems auth codes in the browser (solves `AADSTS9002327` error)
+- **Browser Helper** (static SPA) – Web UI that redeems auth codes in the browser (solves `AADSTS9002327` error)
+
+> **Note:** Flask backend has been removed. The browser helper is now a pure static site (HTML/CSS/JavaScript) with zero backend dependencies.
 
 ## Quick Start
 
@@ -12,13 +14,13 @@ Test OAuth 2.0 / OIDC flows with Microsoft Entra. Implements PKCE security and p
 pixi install
 
 # 2. Configure
-cp .env.example .env
-# Edit .env with: client_id, redirect_uri, discovery_url, client_secret (optional)
+cp public/config.json.example public/config.json
+# Edit public/config.json with: client_id, redirect_uri, discovery_url, client_secret (optional)
 
 # 3. Run
-pixi run browser-helper  # Recommended: Web UI at localhost:5000
+pixi run serve      # Browser helper: http://localhost:8000
 # OR
-pixi run report         # CLI with interactive prompts
+pixi run report     # CLI with interactive prompts
 ```
 
 ## Workflows
@@ -29,12 +31,12 @@ pixi run report
 # Follow prompts: open auth URL, login, paste redirect URL with code
 ```
 
-**Browser Helper:**
+**Browser Helper (Static Site):**
 ```bash
-pixi run browser-helper          # Opens browser automatically
-pixi run browser-helper-firefox  # With Firefox
-pixi run browser-helper-chromium # With Chromium
-# Fill form, click "Start OAuth Flow", login, view tokens
+pixi run serve
+# Serve static files at http://localhost:8000
+# Open http://localhost:8000 in browser
+# Fill form, click "Launch authorization URL", login, view tokens
 ```
 
 **Tests:**
@@ -69,6 +71,7 @@ discovery_url="..."
 - **[docs/USAGE.md](docs/USAGE.md)** – Setup guides for different Entra configs (Generic, B2C, Custom)
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** – Technical design and OAuth flow details
 - **[docs/TESTING.md](docs/TESTING.md)** – Testing guide (unit, E2E, manual)
+- **[docs/INFRA-GUIDE.md](docs/INFRA-GUIDE.md)** – Deployment to Cloudflare Pages (static site)
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** – Development setup and contribution guidelines
 - **[docs/credential-testing.md](docs/credential-testing.md)** – Troubleshooting and enterprise constraints
 

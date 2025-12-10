@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Microsoft Entra Browser Helper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="page-header">
+        <h1>Microsoft Entra Browser Helper</h1>
+        <p class="lead">
+          Redeem authorization codes directly in the browser so SPA (cross-origin only) registrations can be validated
+          without wiring tokens into your app first.
+        </p>
+      </header>
+
+      <div class="layout">
+        <div class="main-column">
+          <section id="auth-section">
+            <h2>Step 1: Authorization</h2>
+            <p class="status">
+              Launch the authorization URL, sign in with your registered credentials, then paste the redirect URL (or just the
+              <code>code</code> value) below.
+            </p>
+            <button id="start-auth" class="primary">Launch authorization URL</button>
+            <label for="code-input">Redirect URL or authorization code</label>
+            <textarea
+              id="code-input"
+              placeholder="https://your-app.example.com/callback?code=...&state=..."
+            ></textarea>
+            <p class="status">You can also paste just the <code>code</code> value.</p>
+            <button id="extract-code" class="secondary">Extract code from URL</button>
+            <label for="verifier">PKCE code verifier (auto-filled after launching authorization)</label>
+            <input id="verifier" placeholder="Generated automatically" />
+          </section>
+
+          <section id="token-section">
+            <h2>Step 2: Token exchange</h2>
+            <p class="status">
+              Redeem the authorization code for tokens using the configured client. The helper automatically includes
+              PKCE parameters when required.
+            </p>
+            <button id="redeem-code" class="primary">Redeem authorization code</button>
+            <p class="status">Token endpoint response</p>
+            <pre id="token-output" class="output"></pre>
+          </section>
+
+          <section id="userinfo-section">
+            <h2>Step 3: Userinfo (optional)</h2>
+            <label for="access-token-input">Paste an access token</label>
+            <textarea
+              id="access-token-input"
+              placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9…"
+            ></textarea>
+            <button id="call-userinfo" class="secondary">Call Microsoft Graph userinfo</button>
+            <p class="status">Userinfo response</p>
+            <pre id="userinfo-output" class="output"></pre>
+          </section>
+        </div>
+
+        <div class="side-column">
+          <section id="config-section">
+            <h2>Configuration</h2>
+            <p class="status" id="config-status">Loading configuration…</p>
+            <form id="config-form">
+              <div class="config-grid">
+                <label>
+                  <span>Client ID</span>
+                  <input id="config-client-id" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Redirect URI</span>
+                  <input id="config-redirect-uri" type="url" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Scope</span>
+                  <input id="config-scope" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Tenant ID</span>
+                  <input id="config-tenant-id" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Discovery URL</span>
+                  <input id="config-discovery-url" type="url" autocomplete="off" />
+                </label>
+                <label>
+                  <span>State</span>
+                  <input id="config-state" autocomplete="off" />
+                </label>
+              </div>
+              <label class="config-checkbox">
+                <input type="checkbox" id="config-public-client" />
+                <span>Public client (PKCE + no client secret)</span>
+              </label>
+              <div class="config-actions">
+                <button type="button" id="config-apply" class="primary">Apply changes</button>
+                <button type="button" id="config-reset" class="secondary">Reset to config values</button>
+              </div>
+            </form>
+          </section>
+
+          <section id="report-section">
+            <h2>Report</h2>
+            <p class="status">Mirrors the CLI report output (PASS/SKIP/FAIL).</p>
+            <div id="report-container"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
