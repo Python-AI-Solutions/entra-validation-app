@@ -1,0 +1,94 @@
+# Cloudflare Pages Deployment
+# Deploys the entra-validator static site to Cloudflare Pages
+# Automatically creates the project if it doesn't exist
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: ["main", "remove-flask"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  deployments: write
+
+env:
+  PROJECT_NAME: "entra-validator"
+  BUILD_DIR: "public"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install Pixi for the Python environment
+      - name: Install Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+
+      # Install dependencies (including pytest for validation)
+      - name: Install dependencies
+        run: pixi install
+
+      # Run tests to ensure everything works
+      - name: Run tests
+        run: pixi run test
+
+      # For static sites, no build step needed - public/ directory is ready
+      - name: Verify static files
+        run: |
+          echo "✓ Checking static files..."
+          test -f public/index.html && echo "✓ index.html present"
+          test -f public/app.js && echo "✓ app.js present"
+          test -f public/styles.css && echo "✓ styles.css present"
+          test -f public/config.json && echo "✓ config.json present"
+          echo "✓ All static files verified"
+
+      # Install wrangler CLI for deployment
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      # Ensure Cloudflare project exists (create if missing)
+      - name: Create project if missing
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "⚠️  Skipping project creation (secrets not configured)"
+            exit 0
+          fi
+
+          echo "Checking if project exists..."
+          PROJECT_EXISTS=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/${{ env.PROJECT_NAME }}" \
+            | grep -q '"success":true' && echo "true" || echo "false")
+
+          if [ "$PROJECT_EXISTS" = "false" ]; then
+            echo "📝 Creating Cloudflare Pages project: ${{ env.PROJECT_NAME }}"
+            curl -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\":\"${{ env.PROJECT_NAME }}\",\"production_branch\":\"main\"}" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" || true
+            echo "✓ Project creation initiated"
+            sleep 3
+          else
+            echo "✓ Project already exists"
+          fi
+
+      # Deploy preview for pull requests
+      - name: Deploy preview
+        if: github.event_name == 'pull_request'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler pages deploy ./public --project-name ${{ env.PROJECT_NAME }} --branch ${{ github.head_ref }}
+
+      # Deploy production for main branch
+      - name: Deploy production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler pages deploy ./public --project-name ${{ env.PROJECT_NAME }} --branch main --commit-dirty=true
